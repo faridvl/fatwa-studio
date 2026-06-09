@@ -1,8 +1,7 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { ContactShadows, Environment, Image, OrbitControls } from '@react-three/drei';
+import { Billboard, ContactShadows, Environment, Image, OrbitControls } from '@react-three/drei';
 import ProjectObject from '../components/ProjectObject';
-import { museumSections } from '../data/projects';
 
 function getMuseumPosition(index, total) {
   const angleSpan = Math.PI * 0.6;
@@ -14,6 +13,8 @@ function getMuseumPosition(index, total) {
 }
 
 export default function Home({ projects }) {
+  const visibleProjects = projects.filter((p) => p.visibleInMenu);
+
   return (
     <main className="home-root">
       <div className="win95-border bio-box">
@@ -27,32 +28,23 @@ export default function Home({ projects }) {
         <div className="bio-footer">Contact: soylalupus@gmail.com</div>
       </div>
 
-      <aside className="win95-border museum-panel" aria-label="Museum sections">
-        <div className="museum-panel-title">MUSEUM_MAP.DAT</div>
-        <ul>
-          {museumSections.map((section) => (
-            <li key={section}>{section}</li>
-          ))}
-        </ul>
-      </aside>
-
       <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
         <Suspense fallback={null}>
           <Environment files="/textures/qwantani_moon_noon_puresky_4k.hdr" background blur={0.05} />
           <ambientLight intensity={1.5} />
           <pointLight position={[10, 10, 10]} intensity={2} />
 
-          <Image url="/images/logo_Kefir.png" transparent scale={[5, 5]} position={[0, 0, 0]} />
+          <Billboard position={[0, 3, 0]}>
+            <Image url="/images/logo_Kefir.png" transparent scale={[5, 5]} />
+          </Billboard>
 
-          {projects.map((proj, index) => (
+          {visibleProjects.map((proj, index) => (
             <ProjectObject
               key={proj.id}
               id={proj.id}
-              title={proj.title}
               modelPath={proj.model}
-              images={proj.images}
-              scale={proj.scale}
-              position={getMuseumPosition(index, projects.length)}
+              descripcionCorta={proj.descripcionCorta}
+              position={getMuseumPosition(index, visibleProjects.length)}
             />
           ))}
 
@@ -60,7 +52,9 @@ export default function Home({ projects }) {
         </Suspense>
 
         <OrbitControls
-          enableZoom={false}
+          enableZoom={true}
+          minDistance={5}
+          maxDistance={15}
           enablePan={false}
           minPolarAngle={Math.PI / 2.2}
           maxPolarAngle={Math.PI / 1.9}

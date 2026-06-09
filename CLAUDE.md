@@ -17,11 +17,9 @@ There is no test suite, linter, or TypeScript config — this is a plain JSX + V
 
 A single-page portfolio for 3D artist/writer "Kefir Fatwa", styled as a Windows 95 desktop. The home page is an interactive 3D "museum" built with React Three Fiber; clicking a floating 3D model routes to that project's detail page.
 
-**Data is the single source of truth.** `src/data/projects.js` drives everything:
-- `projects[]` — each entry's `id`, `model` path, `scale`, `images`, and text fields populate both the 3D scene objects and the detail pages. `id` is a **number** and is matched in `ProjectDetail` via `Number.parseInt` — keep ids numeric.
-- `museumSections[]` — the text list rendered in the side panel. It is separate from `projects` and must be kept in sync manually.
+**Data is the single source of truth.** `src/data/projects.js` exports `projects[]`: each entry's `id`, `model` path, `scale`, `images`, and text fields populate both the 3D scene objects and the detail pages. `id` is a **number** and is matched in `ProjectDetail` via `Number.parseInt` — keep ids numeric.
 
-Adding or changing a project means editing this file; the scene, navigation, and routes update automatically.
+Adding or changing a project means editing this file; the scene and routes update automatically.
 
 **Rendering flow:**
 - `src/main.jsx` → `src/app.jsx` (note lowercase filename). `app.jsx` holds the `BrowserRouter`, the persistent top nav, and the Win95 contact modal (the form is non-functional — `onSubmit` is prevented).

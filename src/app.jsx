@@ -1,12 +1,13 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { projects } from './data/projects';
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { projects } from "./data/projects";
 
-const Home = lazy(() => import('./pages/Home'));
-const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const Home = lazy(() => import("./pages/Home"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 
 export default function App() {
   const [contactOpen, setContactOpen] = useState(false);
+  const [formStatus, setFormStatus] = useState("idle");
   const firstInputRef = useRef(null);
 
   useEffect(() => {
@@ -15,16 +16,37 @@ export default function App() {
     }
   }, [contactOpen]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormStatus("sending");
+    try {
+      const res = await fetch("https://formspree.io/f/meewkeeo", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(e.target),
+      });
+      setFormStatus(res.ok ? "success" : "error");
+    } catch {
+      setFormStatus("error");
+    }
+  };
+
   return (
     <Router>
       <nav className="win95-border top-nav">
-        <div>
+        <div className="brand-wrap">
           <strong className="brand-title">KEFIR FATWA</strong>
-          <span className="brand-subtitle">jose fallas // 3D Artist & Writer</span>
+          <span className="brand-subtitle">
+            jose fallas // 3D Artist & Writer
+          </span>
         </div>
 
         <div className="social-wrap">
-          <a href="https://www.instagram.com/kfr.ftw" target="_blank" rel="noreferrer">
+          <a
+            href="https://www.instagram.com/kfr.ftw"
+            target="_blank"
+            rel="noreferrer"
+          >
             <img
               src="https://img.icons8.com/color/48/000000/instagram-new.png"
               alt="IG"
@@ -42,48 +64,99 @@ export default function App() {
         CONTACT.SYS
       </button>
 
-      <Suspense fallback={<div className="route-loading">Loading museum...</div>}>
+      <Suspense
+        fallback={<div className="route-loading">Loading museum...</div>}
+      >
         <Routes>
           <Route path="/" element={<Home projects={projects} />} />
-          <Route path="/project/:id" element={<ProjectDetail projects={projects} />} />
+          <Route
+            path="/project/:id"
+            element={<ProjectDetail projects={projects} />}
+          />
         </Routes>
       </Suspense>
 
       {contactOpen && (
-        <div className="contact-overlay" role="dialog" aria-modal="true" aria-label="Contact form">
+        <div
+          className="contact-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Contact form"
+        >
           <div className="win95-border contact-modal">
             <div className="contact-header">
-              <span className="contact-header-title">Send Message - kefir_fatwa</span>
-              <button onClick={() => setContactOpen(false)} className="close-btn" aria-label="Close contact form">
+              <span className="contact-header-title">
+                Send Message - kefir_fatwa
+              </span>
+              <button
+                onClick={() => setContactOpen(false)}
+                className="close-btn"
+                aria-label="Close contact form"
+              >
                 X
               </button>
             </div>
 
-            <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
-              <div className="field-wrap">
-                <label className="field-label">From (Email):</label>
-                <input ref={firstInputRef} type="email" className="field-input" placeholder="your@email.com" />
+            {formStatus === "success" ? (
+              <div className="contact-success">
+                [ SISTEMA // MENSAJE ENTREGADO CON ÉXITO ]
               </div>
+            ) : (
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="field-wrap">
+                  <label className="field-label">From (Email):</label>
+                  <input
+                    ref={firstInputRef}
+                    type="email"
+                    name="email"
+                    className="field-input"
+                    placeholder="your@email.com"
+                  />
+                </div>
 
-              <div className="field-wrap">
-                <label className="field-label">Subject:</label>
-                <input type="text" className="field-input" placeholder="Project Inquiry" />
-              </div>
+                <div className="field-wrap">
+                  <label className="field-label">Subject:</label>
+                  <input
+                    type="text"
+                    name="subject"
+                    className="field-input"
+                    placeholder="Project Inquiry"
+                  />
+                </div>
 
-              <div className="field-wrap">
-                <label className="field-label">Message:</label>
-                <textarea className="field-textarea" placeholder="Write your request/question here..." />
-              </div>
+                <div className="field-wrap">
+                  <label className="field-label">Message:</label>
+                  <textarea
+                    name="message"
+                    className="field-textarea"
+                    placeholder="Write your request/question here..."
+                  />
+                </div>
 
-              <div className="contact-actions">
-                <button type="submit" className="btn-95 send-btn">
-                  SEND
-                </button>
-                <button type="button" className="btn-95" onClick={() => setContactOpen(false)}>
-                  CANCEL
-                </button>
-              </div>
-            </form>
+                {formStatus === "error" && (
+                  <div className="contact-error">
+                    [ ERROR // INTENTA DE NUEVO ]
+                  </div>
+                )}
+
+                <div className="contact-actions">
+                  <button
+                    type="submit"
+                    className="btn-95 send-btn"
+                    disabled={formStatus === "sending"}
+                  >
+                    {formStatus === "sending" ? "[ ENVIANDO... ]" : "SEND"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-95"
+                    onClick={() => setContactOpen(false)}
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
