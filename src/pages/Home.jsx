@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Billboard, ContactShadows, Environment, Image, OrbitControls } from '@react-three/drei';
+import { Billboard, Environment, Image, OrbitControls } from '@react-three/drei';
 import ProjectObject from '../components/ProjectObject';
 
 function getMuseumPosition(index, total) {
@@ -118,7 +118,6 @@ export default function Home({ projects }) {
             />
           ))}
 
-          <ContactShadows opacity={0.4} scale={20} blur={2.4} />
         </Suspense>
 
         <OrbitControls
