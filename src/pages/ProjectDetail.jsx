@@ -1,64 +1,29 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-export default function ProjectDetail({ projects }) {
-  const { id } = useParams();
-  const project = projects.find((item) => item.id === Number.parseInt(id, 10));
+const REELS_PER_PAGE = 3;
 
+function ReelExpanded({ reel }) {
   const [slide, setSlide] = useState(0);
-  const [showRelated, setShowRelated] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
 
-  // Otros proyectos de la misma categoría (excluyendo el actual).
-  const related = useMemo(() => {
-    if (!project) return [];
-    return projects.filter((p) => p.categoria === project.categoria && p.id !== project.id);
-  }, [projects, project]);
-
-  if (!project) {
-    return <div className="project-not-found">Project not found</div>;
-  }
-
-  const imagenes = project.imagenes ?? [];
+  const imagenes = reel.imagenes ?? [];
   const total = imagenes.length;
-  // Avance circular del carrusel; el módulo evita índices fuera de rango.
-  const goPrev = () => setSlide((s) => (total ? (s - 1 + total) % total : 0));
-  const goNext = () => setSlide((s) => (total ? (s + 1) % total : 0));
   const current = total ? slide % total : 0;
 
-  // Nombre de archivo simulado: "ciber-humanoides // asset_01.dat"
-  const fileSlug = project.title.toLowerCase().replace(/\s+/g, '-');
-  const assetLabel = `${fileSlug} // asset_${String(current + 1).padStart(2, '0')}.dat`;
+  const goPrev = () => setSlide((s) => (total ? (s - 1 + total) % total : 0));
+  const goNext = () => setSlide((s) => (total ? (s + 1) % total : 0));
+
+  const assetLabel = `${reel.title.toLowerCase().replace(/\s+/g, '-')} // asset_${String(current + 1).padStart(2, '0')}.dat`;
 
   return (
-    <div className="project-page">
-      <Link to="/" className="btn-95 project-back-link">
-        &lt; BACK TO DESKTOP
-      </Link>
+    <>
+      <div className="reel-expanded win95-border">
+        <div className="reel-expanded-header">
+          <span>{reel.title}</span>
+        </div>
 
-      <div className="win95-border project-window">
-        {/* ── ARRIBA: información fija ───────────────────────────── */}
-        <header className="project-info">
-          <h1 className="project-title">{project.title}</h1>
-          <hr className="project-divider" />
-
-          <div className="project-meta-grid">
-            <div>
-              <strong>Sección:</strong> {project.section}
-            </div>
-            <div>
-              <strong>Año:</strong> {project.year}
-            </div>
-            <div>
-              <strong>Medio:</strong> {project.medium}
-            </div>
-          </div>
-        </header>
-
-        {/* ── CENTRO: carrusel horizontal ───────────────────────── */}
-        <div className="project-context">{project.contextoConcepto}</div>
-
-        <section className="carousel" aria-label="Visor de imágenes del proyecto">
+        <section className="carousel" aria-label={`Visor de ${reel.title}`}>
           <div className="carousel-viewport">
             <button
               type="button"
@@ -74,7 +39,7 @@ export default function ProjectDetail({ projects }) {
               {total ? (
                 <img
                   src={imagenes[current]}
-                  alt={`${project.title} // ${current + 1} de ${total}`}
+                  alt={`${reel.title} // ${current + 1} de ${total}`}
                   className="carousel-img"
                   onClick={() => setIsZoomed(true)}
                 />
@@ -99,51 +64,10 @@ export default function ProjectDetail({ projects }) {
           </div>
         </section>
 
-        {/* ── Descripción breve ─────────────────────────────────── */}
-        <p className="project-short">{project.descripcionCorta}</p>
-
-        {/* ── Historia (descripción larga) ──────────────────────── */}
         <section className="project-story">
           <h2 className="project-story-title">Historia:</h2>
-          <p className="project-desc">{project.descripcionLarga}</p>
+          <p className="project-desc">{reel.descripcionLarga}</p>
         </section>
-
-        {/* ── ABAJO: proyectos relacionados ─────────────────────── */}
-        <footer className="project-related">
-          <button
-            type="button"
-            className="btn-95"
-            onClick={() => setShowRelated((v) => !v)}
-            aria-expanded={showRelated}
-          >
-            {showRelated ? 'Ver menos' : 'Ver más'}
-          </button>
-
-          {showRelated && (
-            <ul className="related-list">
-              {related.length ? (
-                related.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      to={`/project/${p.id}`}
-                      className="win95-border related-row"
-                      onClick={() => {
-                        setSlide(0);
-                        setShowRelated(false);
-                      }}
-                    >
-                      <img className="related-row-thumb" src={p.imagenes?.[0]} alt={p.title} />
-                      <strong className="related-row-title">{p.title}</strong>
-                      <span className="related-row-desc">{p.descripcionCorta}</span>
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li className="related-empty">No hay otros proyectos en esta categoría.</li>
-              )}
-            </ul>
-          )}
-        </footer>
       </div>
 
       {isZoomed && total > 0 && (
@@ -161,11 +85,103 @@ export default function ProjectDetail({ projects }) {
               </button>
             </div>
             <div className="zoom-body">
-              <img src={imagenes[current]} alt={project.title} className="zoom-img" />
+              <img src={imagenes[current]} alt={reel.title} className="zoom-img" />
             </div>
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+export default function ProjectDetail({ projects }) {
+  const { id } = useParams();
+  const project = projects.find((item) => item.id === Number.parseInt(id, 10));
+
+  const [visibleCount, setVisibleCount] = useState(REELS_PER_PAGE);
+  const [expandedReelId, setExpandedReelId] = useState(null);
+
+  if (!project) {
+    return <div className="project-not-found">Project not found</div>;
+  }
+
+  const reels = project.reels ?? [];
+  const visibleReels = reels.slice(0, visibleCount);
+  const hasMore = visibleCount < reels.length;
+
+  const handleReelClick = (reelId) => {
+    setExpandedReelId((prev) => (prev === reelId ? null : reelId));
+  };
+
+  return (
+    <div className="project-page">
+      <Link to="/" className="btn-95 project-back-link">
+        &lt; BACK TO DESKTOP
+      </Link>
+
+      <div className="win95-border project-window">
+        {/* ── Información del proyecto ── */}
+        <header className="project-info">
+          <h1 className="project-title">{project.title}</h1>
+          <hr className="project-divider" />
+          <div className="project-meta-grid">
+            <div>
+              <strong>Sección:</strong> {project.section}
+            </div>
+            <div>
+              <strong>Año:</strong> {project.year}
+            </div>
+            <div>
+              <strong>Medio:</strong> {project.medium}
+            </div>
+          </div>
+        </header>
+
+        <div className="project-context">{project.contextoConcepto}</div>
+        <p className="project-short">{project.descripcionCorta}</p>
+
+        {/* ── Reels ── */}
+        <section className="reels-section">
+          <ul className="reels-list">
+            {visibleReels.map((reel) => (
+              <li key={reel.id}>
+                <button
+                  type="button"
+                  className={`reel-thumb${expandedReelId === reel.id ? ' reel-thumb--active' : ''}`}
+                  onClick={() => handleReelClick(reel.id)}
+                  aria-expanded={expandedReelId === reel.id}
+                >
+                  <div className="reel-thumb-screen">
+                    <img
+                      src={reel.imagenPrincipal}
+                      alt={reel.title}
+                      className="reel-thumb-img"
+                    />
+                  </div>
+                  <div className="reel-thumb-footer">
+                    <span className="reel-thumb-title">{reel.title}</span>
+                    <span className="reel-thumb-indicator">
+                      {expandedReelId === reel.id ? '[ — ]' : '[ + ]'}
+                    </span>
+                  </div>
+                </button>
+
+                {expandedReelId === reel.id && <ReelExpanded reel={reel} />}
+              </li>
+            ))}
+          </ul>
+
+          {hasMore && (
+            <button
+              type="button"
+              className="btn-95 reels-more-btn"
+              onClick={() => setVisibleCount((c) => c + REELS_PER_PAGE)}
+            >
+              Ver más [{reels.length - visibleCount} restante{reels.length - visibleCount !== 1 ? 's' : ''}]
+            </button>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

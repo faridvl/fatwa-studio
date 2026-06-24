@@ -658,67 +658,115 @@ body {
   border-color: #404040 #ffffff #ffffff #404040;
 }
 
-/* ── Abajo: proyectos relacionados (filas escaneables) ── */
-.project-related {
+/* ── Reels: lista de miniaturas con acordeón ── */
+.reels-section {
   border-top: 1px solid #808080;
   padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.related-list {
+.reels-list {
   list-style: none;
-  margin: 16px 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.related-row {
+.reel-thumb {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  background: var(--win-grey);
+  border: 2px solid #fff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  box-shadow: 1px 1px 0 1px #000;
   display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.reel-thumb--active {
+  border-color: #808080;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+  box-shadow: inset 1px 1px 0 #808080;
+}
+
+.reel-thumb-screen {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-bottom: 2px solid #808080;
+  background: #101014;
+  border: 3px solid;
+  border-color: #404040 #ffffff #ffffff #404040;
+}
+
+.reel-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.15s;
+}
+
+.reel-thumb:hover .reel-thumb-img {
+  opacity: 0.85;
+}
+
+.reel-thumb-footer {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  min-height: 72px;
-  text-decoration: none;
-  color: #1a1a1b;
+  padding: 8px 12px;
   background: var(--win-grey);
 }
 
-.related-row-thumb {
-  flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  background: #000;
-  border: 3px solid;
-  border-color: #404040 #ffffff #ffffff #404040; /* hundido retro */
-}
-
-.related-row:hover {
-  background: #000080;
-  color: #fff;
-}
-
-.related-row-title {
-  flex: 0 0 200px;
-  color: var(--orange);
+.reel-thumb-title {
+  font-weight: bold;
   font-size: 14px;
+  color: var(--orange);
 }
 
-.related-row:hover .related-row-title {
-  color: var(--yellow);
+.reel-thumb--active .reel-thumb-title {
+  color: #000080;
 }
 
-.related-row-desc {
-  flex: 1 1 auto;
+.reel-thumb-indicator {
   font-size: 13px;
-  line-height: 1.4;
+  font-weight: bold;
+  color: #000080;
+  letter-spacing: 1px;
 }
 
-.related-empty {
-  margin-top: 16px;
+/* Panel expandido del reel (mismo layout que el detalle original) */
+.reel-expanded {
+  margin-top: 4px;
+  padding: 20px;
+  background: #b8b8b8;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reel-expanded-header {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  padding: 4px 12px;
   font-size: 13px;
-  list-style: none;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.reels-more-btn {
+  align-self: flex-start;
 }
 
 .project-not-found {
