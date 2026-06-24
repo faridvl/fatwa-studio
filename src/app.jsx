@@ -36,9 +36,6 @@ export default function App() {
       <nav className="win95-border top-nav">
         <div className="brand-wrap">
           <strong className="brand-title">KEFIR FATWA</strong>
-          <span className="brand-subtitle">
-            jose fallas // 3D Artist & Writer
-          </span>
         </div>
 
         <div className="social-wrap">

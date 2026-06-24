@@ -78,8 +78,11 @@ export default function ProjectObject({ modelPath, id, position, descripcionCort
       </group>
 
       {hovered && descripcionCorta && (
-        <Html position={[0, 1.7, 0]} center pointerEvents="none" distanceFactor={8}>
-          <div className="win95-border scene-tooltip">{descripcionCorta}</div>
+        <Html position={[0, 1.7, 0]} center pointerEvents="none" distanceFactor={6}>
+          <div className="win95-border scene-tooltip">
+            <div className="scene-tooltip-bar">&#9632; proyecto</div>
+            <div className="scene-tooltip-body">{descripcionCorta}</div>
+          </div>
         </Html>
       )}
     </group>
